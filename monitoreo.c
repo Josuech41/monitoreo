@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -13,29 +12,73 @@ typedef struct
     float historicos[DIAS_HISTORICOS][4];
 } Zona;
 
-void cargarDatos(Zona zonas[], int numZonas);
-void guardarDatos(Zona zonas[], int numZonas, const char *archivo);
-void recuperarDatos(Zona zonas[], int numZonas, const char *archivo);
-void calcularPromedios(Zona zonas[], int numZonas);
-void predecirNiveles(Zona zonas[], int numZonas);
-void emitirAlertas(Zona zonas[], int numZonas);
-void generarRecomendaciones(Zona zonas[], int numZonas);
+void ingresarDatos(Zona zonas[], int numZonas);
+void guardarEnArchivo(Zona zonas[], int numZonas, const char *archivo);
+void cargarDesdeArchivo(Zona zonas[], int numZonas, const char *archivo);
+void calcularPromediosHistoricos(Zona zonas[], int numZonas);
+void predecirContaminantes(Zona zonas[], int numZonas);
+void generarAlertas(Zona zonas[], int numZonas);
+void ofrecerSugerencias(Zona zonas[], int numZonas);
 
 int main()
 {
     Zona zonas[NUM_ZONAS];
-    const char *archivoDatos = "datos_contaminacion.dat";
-    recuperarDatos(zonas, NUM_ZONAS, archivoDatos);
-    cargarDatos(zonas, NUM_ZONAS);
-    calcularPromedios(zonas, NUM_ZONAS);
-    predecirNiveles(zonas, NUM_ZONAS);
-    emitirAlertas(zonas, NUM_ZONAS);
-    generarRecomendaciones(zonas, NUM_ZONAS);
-    guardarDatos(zonas, NUM_ZONAS, archivoDatos);
+    const char *archivoDatos = "datos_contaminacion.txt";
+
+    printf("Intentando cargar datos desde '%s'...\n", archivoDatos);
+    cargarDesdeArchivo(zonas, NUM_ZONAS, archivoDatos);
+
+    int opcion;
+    do
+    {
+        printf("\n--- Menu ---\n");
+        printf("1. Ver datos actuales\n");
+        printf("2. Actualizar datos\n");
+        printf("3. Calcular promedios\n");
+        printf("4. Predecir niveles\n");
+        printf("5. Generar alertas\n");
+        printf("6. Ofrecer sugerencias\n");
+        printf("7. Guardar y salir\n");
+        printf("Ingrese una opción: ");
+        scanf("%d", &opcion);
+
+        switch (opcion)
+        {
+        case 1:
+            for (int i = 0; i < NUM_ZONAS; i++)
+            {
+                printf("\nZona: %s\nCO2: %.2f, SO2: %.2f, NO2: %.2f, PM2.5: %.2f\n",
+                       zonas[i].nombre, zonas[i].co2, zonas[i].so2, zonas[i].no2, zonas[i].pm25);
+            }
+            break;
+        case 2:
+            ingresarDatos(zonas, NUM_ZONAS);
+            break;
+        case 3:
+            calcularPromediosHistoricos(zonas, NUM_ZONAS);
+            break;
+        case 4:
+            predecirContaminantes(zonas, NUM_ZONAS);
+            break;
+        case 5:
+            generarAlertas(zonas, NUM_ZONAS);
+            break;
+        case 6:
+            ofrecerSugerencias(zonas, NUM_ZONAS);
+            break;
+        case 7:
+            printf("Guardando datos y saliendo...\n");
+            guardarEnArchivo(zonas, NUM_ZONAS, archivoDatos);
+            break;
+        default:
+            printf("Opción inválida. Intente de nuevo.\n");
+        }
+    } while (opcion != 7);
+
     return 0;
 }
 
-void cargarDatos(Zona zonas[], int numZonas)
+void ingresarDatos(Zona zonas[], int numZonas)
 {
     for (int i = 0; i < numZonas; i++)
     {
@@ -52,7 +95,7 @@ void cargarDatos(Zona zonas[], int numZonas)
     }
 }
 
-void guardarDatos(Zona zonas[], int numZonas, const char *archivo)
+void guardarEnArchivo(Zona zonas[], int numZonas, const char *archivo)
 {
     FILE *file = fopen(archivo, "w");
     if (!file)
@@ -72,7 +115,7 @@ void guardarDatos(Zona zonas[], int numZonas, const char *archivo)
     fclose(file);
 }
 
-void recuperarDatos(Zona zonas[], int numZonas, const char *archivo)
+void cargarDesdeArchivo(Zona zonas[], int numZonas, const char *archivo)
 {
     FILE *file = fopen(archivo, "r");
     if (!file)
@@ -92,7 +135,7 @@ void recuperarDatos(Zona zonas[], int numZonas, const char *archivo)
     fclose(file);
 }
 
-void calcularPromedios(Zona zonas[], int numZonas)
+void calcularPromediosHistoricos(Zona zonas[], int numZonas)
 {
     printf("\n--- Promedios Históricos ---\n");
     for (int i = 0; i < numZonas; i++)
@@ -114,7 +157,7 @@ void calcularPromedios(Zona zonas[], int numZonas)
     }
 }
 
-void predecirNiveles(Zona zonas[], int numZonas)
+void predecirContaminantes(Zona zonas[], int numZonas)
 {
     printf("\n--- Predicción de Niveles Futuros ---\n");
     for (int i = 0; i < numZonas; i++)
@@ -133,7 +176,7 @@ void predecirNiveles(Zona zonas[], int numZonas)
     }
 }
 
-void emitirAlertas(Zona zonas[], int numZonas)
+void generarAlertas(Zona zonas[], int numZonas)
 {
     printf("\n--- Alertas Preventivas ---\n");
     const float limites[4] = {400.0, 80.0, 100.0, 25.0};
@@ -159,21 +202,21 @@ void emitirAlertas(Zona zonas[], int numZonas)
     }
 }
 
-void generarRecomendaciones(Zona zonas[], int numZonas)
+void ofrecerSugerencias(Zona zonas[], int numZonas)
 {
-    printf("\n--- Recomendaciones ---\n");
+    printf("\n--- Sugerencias Ambientales ---\n");
     for (int i = 0; i < numZonas; i++)
     {
         printf("Zona: %s\n", zonas[i].nombre);
         if (zonas[i].pm25 > 25.0)
         {
-            printf("- Reducir el tráfico vehicular.\n");
-            printf("- Promover el transporte público y días sin automóvil.\n");
-            printf("- Suspensión de actividades al aire libre.\n");
+            printf("- Implementar restricciones de tráfico en horas pico.\n");
+            printf("- Incentivar el uso de transporte no motorizado, como bicicletas.\n");
+            printf("- Mejorar sistemas de monitoreo y control de calidad del aire.\n");
         }
         else
         {
-            printf("- Niveles aceptables. Mantener buenas prácticas ambientales.\n");
+            printf("- Continuar promoviendo actividades sostenibles y mantener controles de calidad del aire.\n");
         }
     }
 }
